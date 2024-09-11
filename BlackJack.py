@@ -18,16 +18,14 @@ def run_game():
         if game_state == 'running':
             initial_deal()
         elif game_state == 'blackjack!':
-            print(f'Blackjack!')
             running = False
             clear_hands()
         elif game_state == 'busted':
-            print(f'Busted')
             running = False
             clear_hands()
 
 def clear_hands():
-    global players_hand, dealers_hand, player_cards_dealt, dealer_cards_dealt
+    global players_hand, dealers_hand, player_cards_dealt, dealer_cards_dealt, running
     # Clears all cards from the players hands
     for x in players_hand:
         players_hand.remove(x)
@@ -36,7 +34,7 @@ def clear_hands():
     for x in dealers_hand:
         dealers_hand.remove(x)
     dealer_cards_dealt = 0
-    pass
+    running = False
 
 def available_deck():
     global suits, cards
@@ -63,29 +61,40 @@ def initial_deal():
     # deal the initial cards to the player
     if player_cards_dealt >= 2:
         deal_cards_to_player()
-        print(f'{hand_value(players_hand)} - {players_hand}')
+        blackjack()
+        #print(f'{hand_value(players_hand)} - {players_hand}')
     else:
         players_hand.append(random.choice(current_game_deck))
         for card in players_hand:
             if card in current_game_deck:
                 current_game_deck.remove(card)
         player_cards_dealt += 1
-        dealer_blackjack()
+        
 
-def dealer_blackjack():
-    global dealers_hand, running
+def blackjack(): # CONVERT THIS INTO A BLACKJACK DETECTOR
+    global dealers_hand, running, game_state
         # Deals a card to player and removes it from the deck.
-    if hand_value(dealers_hand) == 21:
-        print (f'House Wins!')
+    if hand_value(dealers_hand) == 21 and hand_value(players_hand) == 21:
+        print (f'TIE')
         clear_hands()
-        running = False
+    elif hand_value(dealers_hand) == 21:
+        print (f'Dealer Wins!')
+        clear_hands()
+    elif hand_value(players_hand) == 21:
+        print(f'Blackjack! Player wins!')
+        game_state = 'blackjack'
+
+    elif hand_value(players_hand) > 21:
+        print(f'Busted with {hand_value(players_hand)-21} Over!\n{players_hand}')
+        game_state = 'busted'
     else:
         hand_value(players_hand)
-        print(f'{hand_value(players_hand)} - {players_hand}')
+        
 
 def deal_cards_to_player():
     global current_game_deck, players_hand, running, player_cards_dealt, stand_or_hit    
-    if hand_value(players_hand) != 'Blackjack!':
+    if blackjack() != 'Blackjack!':
+        print(f'Your hand has {hand_value(players_hand)} points: {players_hand}')
         stand_or_hit = input('Hit or Stand? ')
         if stand_or_hit.lower() == 'hit':
             players_hand.append(random.choice(current_game_deck))
@@ -109,15 +118,17 @@ def hand_value(cards_total):
             if sum <= 10:
                 sum = sum + 11
             else: sum = sum + 1
-    if sum == 21:
-        result = f'{sum} - Blackjack!'
-        game_state = 'blackjack'
+    return sum
+"""    if sum == 21:
+        result = f\'{sum} - Blackjack!\'
+        game_state = \'blackjack\'
     elif sum > 21:
-        result = f'Busted with {sum-21} Over!'
-        game_state = 'busted'
+        result = f\'Busted with {sum-21} Over!\'
+        game_state = \'busted\'
     else: 
-        result = f'Your hand has {sum} points'
-    return result
+        result = f\'Your hand has {sum} points\'
+""" 
+
 
 def deal_cards_to_dealer():
     global dealers_hand, dealer_cards_dealt
