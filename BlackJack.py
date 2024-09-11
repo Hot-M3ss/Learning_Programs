@@ -21,14 +21,11 @@ def run_game():
             print(f'Blackjack!')
             running = False
             clear_hands()
-        else:
+        elif game_state == 'busted':
             print(f'Busted')
             running = False
             clear_hands()
 
-        ''
-       # if player_cards_dealt == 2:
-        #    running = False
 def clear_hands():
     global players_hand, dealers_hand, player_cards_dealt, dealer_cards_dealt
     # Clears all cards from the players hands
@@ -40,6 +37,7 @@ def clear_hands():
         dealers_hand.remove(x)
     dealer_cards_dealt = 0
     pass
+
 def available_deck():
     global suits, cards
     deck = []
@@ -54,9 +52,7 @@ def available_deck():
 def initial_deal():
     global player_cards_dealt, dealer_cards_dealt, current_game_deck, dealers_hand, players_hand, running
     # deal the initial cards to the dealer
-    if dealer_cards_dealt >= 2:
-        deal_cards_to_dealer()
-    else:
+    if dealer_cards_dealt < 2:
         dealers_hand.append(random.choice(current_game_deck))
         for card in dealers_hand:
             if card in current_game_deck:
@@ -74,13 +70,21 @@ def initial_deal():
             if card in current_game_deck:
                 current_game_deck.remove(card)
         player_cards_dealt += 1
+        dealer_blackjack()
+
+def dealer_blackjack():
+    global dealers_hand, running
+        # Deals a card to player and removes it from the deck.
+    if hand_value(dealers_hand) == 21:
+        print (f'House Wins!')
+        clear_hands()
+        running = False
+    else:
         hand_value(players_hand)
         print(f'{hand_value(players_hand)} - {players_hand}')
-    pass
 
 def deal_cards_to_player():
-    global current_game_deck, players_hand, running, player_cards_dealt, stand_or_hit
-    # Deals a card to player and removes it from the deck.
+    global current_game_deck, players_hand, running, player_cards_dealt, stand_or_hit    
     if hand_value(players_hand) != 'Blackjack!':
         stand_or_hit = input('Hit or Stand? ')
         if stand_or_hit.lower() == 'hit':
@@ -91,7 +95,6 @@ def deal_cards_to_player():
         elif stand_or_hit.lower() == 'stand':
             'PASSED STAND'
             deal_cards_to_dealer()
-            running = False
 
 def hand_value(cards_total):
     sum = 0
@@ -117,7 +120,8 @@ def hand_value(cards_total):
     return result
 
 def deal_cards_to_dealer():
+    global dealers_hand, dealer_cards_dealt
+    print(f'Dealers Hand, First Hidden: {dealers_hand[1:]}')
     print(f'Dealer test passed')
-    pass
 
 run_game()
