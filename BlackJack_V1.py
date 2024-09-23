@@ -2,7 +2,6 @@ import random
 import os
 
 def create_deck() -> list:
-    print('available_deck')
     ten_value_cards = ['J','Q','K']
     suits = ['H','C','D','S']
     deck = []
@@ -34,14 +33,86 @@ def calculate_hand(base_hand) -> int:
         else:
             normal_card_sum = normal_card_sum + card_value(card)
 
-    '''# debug, remove eventually
-    print(f'{normal_card_sum} & {number_of_aces}')'''
-
     # Calculates if the total with aces is more than 21, 
     if normal_card_sum + number_of_aces + 10 <= 21 and number_of_aces > 0:
         return normal_card_sum + number_of_aces + 10
     else:
         return normal_card_sum + number_of_aces
+
+def clear_hand(hand):
+    for card in hand:
+        print(card)
+
+def continue_game() -> bool:
+    ask_to_continue = input('\nWould you like to play another round? ').lower()
+    match ask_to_continue:
+        case 'yes': 
+            return True
+        case 'no':
+            print('Have a great day!') 
+            return False
+        case _:
+            print('Unknown answer, ending game...')
+            return False
+
+def check_outcome(players_hand: list, dealers_hand: list, has_stood: bool) -> bool:
+    dealer_score = calculate_hand(dealers_hand)
+    player_score = calculate_hand(players_hand)
+    if has_stood == False:
+        if player_score > 21:
+            return False
+        else:
+            return True
+    else:
+        if player_score == dealer_score:
+            print('It\'s a Tie!')
+            return True
+        elif player_score > dealer_score or dealer_score > 21:
+            print('Player Wins!')
+            return True
+        else:
+            print('House Wins!')
+            return True
+
+def players_turn(players_hand, dealers_hand) -> None:
+    # Constantly asks if they want to hit, unless they stand.
+    while(True):
+        # Checks if the player busted, if so break.
+        if check_outcome(players_hand, dealers_hand, False) == True:
+            # Asks the player for an input, and deals a card on hit, otherwise ends turn.
+            player_input = input('Hit or Stand? ').lower()
+        else:
+            print('You busted! Better luck next time!')
+            break
+        
+        match player_input:
+            case 'hit':
+                os.system('cls')
+                players_hand.append(deal_card(deck))
+                print_hands(players_hand, dealers_hand)
+                check_outcome(players_hand, dealers_hand, False)
+            case 'stand':
+                dealers_turn(players_hand, dealers_hand)
+                break
+            case _:
+                print('Invalid Command!')
+
+def dealers_turn(players_hand, dealers_hand):
+    if calculate_hand(dealers_hand) < 17:
+        while calculate_hand(dealers_hand) < 17:
+            os.system('cls')
+            dealers_hand.append(deal_card(deck))
+            print_hands(players_hand, dealers_hand)
+            check_outcome(players_hand, dealers_hand, True)
+    else:
+        check_outcome(players_hand, dealers_hand, True)
+
+def deal_card(deck):
+    return deck.pop()
+
+def print_hands(players_hand, dealers_hand) -> None:
+    print(f'The Dealers First Card is always hidden!\n\nDealer: {dealers_hand[1:]} - Score: {calculate_hand(dealers_hand[1:])}')    
+    print(f'Player: {players_hand} - Score: {calculate_hand(players_hand)}\n')
 
 def card_value(card) -> int:
     # sets the value of individual cards.
@@ -79,32 +150,31 @@ def resolve_naturals(players_hand, dealers_hand) -> bool:
 deck = create_deck()
 
 def play():
-    os.system('cls')
-    global deck
-    players_hand = []
-    dealers_hand = []
+    while (True):
+        os.system('cls')
+        global deck
+        players_hand = []
+        dealers_hand = []
 
-    # Deal the initial hand to each person.
-    dealers_hand.append(deck.pop())
-    players_hand.append(deck.pop())
-    dealers_hand.append(deck.pop())
-    players_hand.append(deck.pop())
-    
-    print(f'The Dealers First Card is always hidden!\n\nDealer: {dealers_hand[1:]} - Score: {calculate_hand(dealers_hand)}')    
-    print(f'Player: {players_hand} - Score: {calculate_hand(players_hand)}\n')
+        if len(deck) < 10:
+            deck = create_deck()
 
-    if not resolve_naturals(players_hand, dealers_hand):
-        player_turn = input('Hit or Stand? ')
-        match player_turn.lower():
-            case 'hit':
-                os.system('cls')
-                players_hand.append(deck.pop())
-                print(players_hand)
-            case 'stand':
-                print('YOU HAVE NO LEGS JOHNNY!')
-            case _:
-                print('Invalid Command!')
-    else:
-        print('BYE!')
+        # Deal the initial hand to each person.
+        dealers_hand.append(deck.pop())
+        players_hand.append(deck.pop())
+        dealers_hand.append(deck.pop())
+        players_hand.append(deck.pop())
+        
+        print_hands(players_hand, dealers_hand)
+        
+        if not resolve_naturals(players_hand, dealers_hand):
+            players_turn(players_hand, dealers_hand)
+            continue_game()
+        else:
+            continue_game()
+
+
+
+        #print('fail')
 
 play()
