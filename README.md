@@ -1,1 +1,1 @@
-# Blackjack
+# This repository is my personal attempt to learn python.
