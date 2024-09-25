@@ -10,7 +10,6 @@ def count_letters(word):
             letter_key[letter] = word.count(letter)
     return letter_key
 
-
 # the below function finds if a letter is in the appropriate place.
 def correctly_placed(guess, word):
     letter_number = 0
@@ -31,8 +30,6 @@ def correctly_placed(guess, word):
 def letter_in_word(guess, word, word_key, previous_guess):
     letter_number = 0
     for letter in guess:
-        # if the letter in position x match the letter in guess and 
-        # the key for x > 0 it will replace the '.' value with a '+' confirming its correct.
         if letter in word and word_key[letter] > 0 and previous_guess[letter_number] != '+':
             previous_guess[letter_number] = '~'
             word_key[letter] -= 1
@@ -71,7 +68,7 @@ This one is a bit tricky to figure out for above, while it does return + for cor
 '''
 
 def play():
-    word = requests.get('https://random-word-api.herokuapp.com/word').json()[0] # stopped working? https://random-word-api.herokuapp.com/word
+    word = requests.get('https://random-word-api.herokuapp.com/word?length=6').json()[0] # stopped working? https://random-word-api.herokuapp.com/word
     word_length = len(word)
 
     while(True):
