@@ -1,104 +1,119 @@
-import requests, os
+import requests
+import string
+import os
+
 
 def menu():
-    pass
+	pass
 
-def count_letters(word):
-    letter_key={}
-    for letter in word:
-        if letter not in letter_key:
-            letter_key[letter] = word.count(letter)
-    return letter_key
+def create_word_key(word) -> dict:
+	letter_key: dict = {}
+	for letter in string.ascii_lowercase:
+		letter_key[letter] = 0
 
-# the below function finds if a letter is in the appropriate place.
-def correctly_placed(guess, word):
-    letter_number = 0
-    previous_guess = []
-    word_key = count_letters(word)
-    for letter in guess:
-        # The below is used to initialize a letter
-        previous_guess.append('-')
-        # if the letter in position x match the letter in guess and 
-        # the key for x > 0 it will replace the '.' value with a '+' confirming its correct.
-        if word[letter_number] == letter and word_key[letter] > 0:
-            previous_guess[letter_number] = '+'
-            word_key[letter] -= 1
-        letter_number += 1
-    letter_in_word(guess, word, word_key, previous_guess)
-    return word_key
+	for letter in word:
+		letter_key[letter] = word.count(letter)
 
-def letter_in_word(guess, word, word_key, previous_guess):
-    letter_number = 0
-    for letter in guess:
-        if letter in word and word_key[letter] > 0 and previous_guess[letter_number] != '+':
-            previous_guess[letter_number] = '~'
-            word_key[letter] -= 1
-        letter_number += 1
-    print(f'{previous_guess}\n{word_key}')
-    return word_key
+	return letter_key
 
 
-# previous_guess[5] = 'SUCCESS' - This allows me to replace 
-
-def compare_guess(word, guess):
-    letter_number = 0
-    previous_guess = []
-    word_key = count_letters(word)
-    guess_key = count_letters(guess)
-    print(word_key)
-    correctly_placed(guess, word)
-    for letter in guess:
-        if letter == word[letter_number]:
-            letter_number += 1
-            word_key[letter] -= 1
-            previous_guess.append('+')
-        elif letter in word and word_key[letter] > 1:
-            letter_number += 1
-            word_key[letter] -= 1
-            previous_guess.append('~')
-        else:
-            letter_number += 1
-            previous_guess.append('-')
-    return previous_guess
-
-'''
-This one is a bit tricky to figure out for above, while it does return + for correct values and 
-- for letters not in the word, the ~ will append if the letter exists at all even if no other repeats occur.
-
-'''
-
-def play():
-    word = requests.get('https://random-word-api.herokuapp.com/word?length=6').json()[0] # stopped working? https://random-word-api.herokuapp.com/word
-    word_length = len(word)
-
-    while(True):
-        os.system('cls')
-        print(word)
-        for i in word:
-            print('[ ]',end=' ') 
-
-        guess = input('\n\nPlease guess a word: ')
-        if len(guess) == len(word):
-            compare_guess(word, guess)
-            
-            # previous_guess.append(guess)
-            # print(previous_guess)
-            # for word_letter in word:
-            #     for guess_letter in guess:
-            #         if word_letter == guess_letter:
+def print_all_guesses(current_guess, guess, word) -> None:
+	if len(guess) == len(word):
+		all_guesses.append(f'{current_guess} - {guess}')
+		for value in all_guesses:
+			print(value)
+	else:
+		os.system('cls')
+		print('Incorrect Length\n')
+		for value in all_guesses:
+			print(value)
 
 
-        
+def correctly_placed(word, guess) -> list[str]:
+	current_guess: list[str] = []
+	word_key: dict = create_word_key(word)
+	
+	letter_number: int = 0
 
-        break
+	for letter in guess:
+		current_guess.append('-')
+
+	for letter in guess:
+		# The below is used to initialize a letter
+		if letter == word[letter_number] and word_key[letter] > 0:
+			current_guess[letter_number] = '+'
+			word_key[letter] -= 1
+		letter_number += 1
+	
+	letter_number: int = 0
+	for letter in guess:
+		if letter in word and word_key[letter] > 0 and current_guess[letter_number] != '+':
+			current_guess[letter_number] = '~'
+			word_key[letter] -= 1
+		letter_number += 1
+	return current_guess
 
 
-play()
+def continue_game() -> None:
+	global new_word, word, guess_attempt, all_guesses
+	continue_input: str = input('\nWould you like to continue? ').lower()
+	match continue_input:
+		case 'yes':
+			new_word = True
+			all_guesses = []
+			guess_attempt = 0
+			word = get_word()
+		case _:
+			exit()
 
-'''
-1. Generate the word in the get_letters() 
-2. Print the board with six rows of guesses.
-3.
-4.
-5.
-'''
+
+def get_word() -> str:
+	os.system('cls')
+	while (True):
+		word_length: int = input('How many letters do you want your word to have? ')
+		if word_length in string.digits and word_length != '':
+			break
+		else:
+			print('Must be a number!', end = ' ')
+	word: str = requests.get(f'https://random-word-api.herokuapp.com/word?length={word_length}').json()[0]
+	return word
+
+all_guesses: list[str] = []
+new_word: bool = True
+word: str = get_word()	
+
+def play() -> None:
+	global new_word, word
+	guess_attempt: int = 0
+	
+	while (True):
+		os.system('cls')
+		print(f'Welcome, you get 5 tries!\n')
+		if new_word == True:
+			for i in word:
+				print('[]', end=' ')
+			print()
+		else:
+			print_all_guesses(current_guess, guess, word)
+
+		guess = input('\nCorrect: + | Incorrect: - | Wrong Spot: ~'
+				'\nPlease guess a word: ').lower()
+
+		if len(guess) == len(word):
+			new_word = False
+			if guess == word:
+				os.system('cls')
+				print('\nYou Win!')
+				continue_game()
+			elif guess_attempt > 4:
+				os.system('cls')
+				print(f'\nYou Lose! The word was: {word}')
+				continue_game()
+			else:
+				current_guess = correctly_placed(word, guess) # was compare_guess()
+			guess_attempt += 1
+
+
+
+if __name__ == '__main__':
+	play()
