@@ -1,16 +1,9 @@
 import requests
-import string
 import os
 
 
 def create_word_key(word) -> dict:
-	letter_key: dict = {}
-	for letter in string.ascii_lowercase:
-		letter_key[letter] = 0
-
-	for letter in word:
-		letter_key[letter] = word.count(letter)
-
+	letter_key = dict([(letter, word.count(letter)) for letter in word]) 
 	return letter_key
 
 
@@ -27,28 +20,24 @@ def print_all_guesses(current_guess, guess, word) -> None:
 
 
 def correctly_placed(word, guess) -> list[str]:
-	current_guess: list[str] = []
 	word_key: dict = create_word_key(word)
-	
 	letter_number: int = 0
-
-	for letter in guess:
-		current_guess.append('-')
+	init_guess: list[str] = ['-' for letter in word]
 
 	for letter in guess:
 		# The below is used to initialize a letter
-		if letter == word[letter_number] and word_key[letter] > 0:
-			current_guess[letter_number] = '+'
+		if letter == word[letter_number] and word_key.get(letter, 0) > 0:
+			init_guess[letter_number] = '+'
 			word_key[letter] -= 1
 		letter_number += 1
-	
+
 	letter_number: int = 0
 	for letter in guess:
-		if letter in word and word_key[letter] > 0 and current_guess[letter_number] != '+':
-			current_guess[letter_number] = '~'
+		if letter in word and word_key.get(letter, 0) > 0 and init_guess[letter_number] != '+':
+			init_guess[letter_number] = '~'
 			word_key[letter] -= 1
 		letter_number += 1
-	return current_guess
+	return init_guess
 
 
 def get_word() -> str:

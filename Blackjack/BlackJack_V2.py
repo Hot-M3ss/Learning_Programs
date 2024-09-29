@@ -1,66 +1,38 @@
-import os
-import random
+class Player:
+    def __init__(self, name) -> None:
+        self.name = name
+        self.hand = []
+        self.chips = 500
+        self.dealer = False
 
-def create_deck() -> list:
-    ten_value_cards = ['J','Q','K']
-    suits = ['H','C','D','S']
-    deck = []
-    # Assigns each card to a suit in order: Ace, Numbers, and Face Cards
-    for suit in suits:
-        deck.append(f'{suit}-A')
-        for number in range(9):
-            deck.append(f'{suit}-{str(number+2)}')
-        for face in ten_value_cards:
-            deck.append(f'{suit}-{face}')
-    random.shuffle(deck)
-    return deck
-
-def deal_card(hand: list):
-    hand.append(globalVariables['deck'].pop())
-
-def print_hand() -> None:
-    print(f'{players_hand}')
-
-def players_turn(players_hand):
-    players_input = input('Would you like to hit or stand? ').lower()
-    match players_input:
-        case 'hit':
-            deal_card(players_hand)
-            print_hand(players_hand)
-        case 'stand':
-            pass
-        case _:
-            pass
-
-globalVariables = {
-    'deck':create_deck(),
-    'dealers_hand': [],
-    'players_hand': []
-}
-
-
-def play():
-    # init variables
-    global globalVariables
-    # Runs the cls to clear the terminal
-    os.system('cls')
-    # The main game logic.
-    while(True):
-        # Checks to make sure the deck is not too small.
-        if len(globalVariables['deck']) < 10:
-            globalVariables['deck'] = create_deck()
-            break
-
-        deal_card(globalVariables['dealers_hand'])
-        deal_card(globalVariables['players_hand'])
-        deal_card(globalVariables['dealers_hand'])
-        deal_card(globalVariables['players_hand'])
-
-        print(globalVariables['players_hand'], globalVariables['dealers_hand'][1:])
-
-        players_turn(globalVariables['players_hand'])
+    def __str__(self) -> str:
+        return f'Name: {self.name}\nHand: {self.hand}\nChips: {self.chips}'
     
-        break
+    def __repr__(self) -> str:
+        return self.name
 
-play()
-    
+tim = Player('Tim')
+
+
+def create_players():
+    while (True):
+        try:
+            player_num_input = int(input('How many players? '))
+            if player_num_input < 8:
+                players: dict = dict([(f'player_{i+1}', i) for i in range(player_num_input)])
+                print(players)
+                break
+            else:
+                print('Players are limited to 7 total.')
+        except ValueError:
+            print('Must be a number!', end=' ')
+        except TypeError:
+            print('Must be a number!', end=' ')
+
+    for entries in players:
+        players[entries] = Player(input(f'Player Name: '))
+
+    # for p in players:
+    #     print(players[p].name)
+
+create_players()
