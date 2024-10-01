@@ -1,4 +1,8 @@
-import random
+from random import shuffle
+from os import system
+
+players = {}
+deck = []
 
 class Player:
     def __init__(self, name) -> None:
@@ -14,15 +18,15 @@ class Player:
     def __repr__(self) -> str:
         return self.name
 
-players: dict = {}
 
 def create_players():     # for p in players: print(players[p].name)
     global players
     while (True):
         try:
             player_num_input = int(input('How many players? '))
-            if 7 < player_num_input <= 0: raise ValueError
-            players: dict = dict([(f'player_{i+1}', i) for i in range(player_num_input)])
+            if 7 < player_num_input <= 0: 
+                raise ValueError
+            players = dict([(f'player_{i+1}', i) for i in range(player_num_input)])
             print(players)
             break
         except ValueError:
@@ -30,45 +34,65 @@ def create_players():     # for p in players: print(players[p].name)
         except TypeError:
             print('Must be a number! Must be less than 8!', end=' ')
 
-    for entries in players:
-        players[entries] = Player(input(f'Player Name: '))
-
-def set_dealer():
-    # add logic that rotates the dealer after a full round. [Low Priority]
-    ...
+    for entries in players: players[entries] = Player(input(f'Player Name: '))
+    default_deck()
 
 
-def create_deck_input(default: bool) -> None:
+def default_deck():
+    while(True):
+        input_defaults: str = input('Would you like to use the default deck size? ').lower()
+        match input_defaults:
+            case 'yes':
+                input_deck(True)
+                break
+            case 'no':
+                input_deck(False)
+                break
+            case _:
+                print('Must be yes or no!')
+
+
+def input_deck(default: bool) -> None:
+    global players
     if default is True:
-        # add logic that determines the number of decks, possibly using match, and then based on the number of players pass the number of decks to create_deck().
-        ...
-    else:
-        # add logic that prompts the player for an input, if that input is within the range 1:8, pass it to create_deck():
-        ...
+        # Determines the number of decks based on the number of players.
+        if 1 <= len(players) < 3: 
+            num_of_decks: int = 2
+        elif 3 <= len(players) < 5: 
+            num_of_decks: int = 4
+        elif 5 <= len(players) < 7: 
+            num_of_decks: int = 6
+        else: 
+            num_of_decks: int = 8
+    else: 
+        while(True):
+            # Asks the player for the number of decks
+            try:
+                deck_input: int = int(input('How many decks would you like in play? '))
+                if not(0 < deck_input < 8): 
+                    raise ValueError
+                num_of_decks: int = deck_input
+                break
+            except ValueError:
+                print('Please pick a number, it must be between 1-8.')
+    create_deck(num_of_decks)
 
 
-def create_deck(num_of_decks: int) -> list:
+def create_deck(num_of_decks: int):
+    global deck
+    deck = []
     ten_value_cards = ['J','Q','K']
     suits = ['H','C','D','S']
-    deck = []
-
-    while (True):
-        if num_of_decks == 0: break
-        try:
-            if not(8 >= int(num_of_decks) > 0): raise ValueError
-            for suit in suits:
+    while num_of_decks > 0:
+        for suit in suits:
                 deck.append(f'{suit}-{'A'}')
                 [deck.append(f'{suit}-{str(i+2)}') for i in range(9)]
                 [deck.append(f'{suit}-{card}') for card in ten_value_cards]
-            num_of_decks -= 1
-        except ValueError:
-            print('It must be a number, or if it already is must be less than 8.\nSetting default at 2')
-            num_of_decks: int = 2
-            
-    random.shuffle(deck)
-    return deck
-    
+        num_of_decks -= 1
+    print(f'# of deck: {int(len(deck)/52)}')
+    shuffle(deck)
 
 
 
-create_deck(-1)
+if __name__ == '__main__':
+    create_players()
