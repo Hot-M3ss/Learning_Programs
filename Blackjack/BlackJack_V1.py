@@ -25,7 +25,6 @@ def calculate_hand(base_hand) -> int:
     clean_hand = strip_hand(base_hand)
     number_of_aces = 0
     normal_card_sum = 0
-    sum = 0
     # Checks to see the value of a card and totals it (unless it is an ace)
     for card in clean_hand:
         if card == 'A':

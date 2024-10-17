@@ -1,0 +1,38 @@
+body {
+  background-color: rgb(16, 124, 195);
+  font-family: Rubik, Arial;
+  margin: 0;
+}
+  
+form {
+  text-align: center;
+  line-height: 30px;
+  height: 80%;
+  overflow: auto;
+}
+
+header {
+  background-color: white;
+  text-align: left;
+  line-height: auto;
+  height: 75%;
+  overflow: auto;
+  margin: 0;
+  position: sticky;
+}
+ 
+section {
+  background-color: white;
+  margin: 20px;
+  padding: 0px 10px;
+}
+
+ol {
+  list-style-type: none;
+  padding-left: 0%;
+}
+
+.webpages {
+  display: inline-block;
+  position: sticky;
+}
