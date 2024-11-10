@@ -17,12 +17,12 @@ game = GameState()
 
 
 class Player:
-    def __init__(self, name) -> None:
+    def __init__(self, name, dealer = False) -> None:
         '''Variables: name, hand, chips, dealer'''
         self.name = name
         self.hand = []
         self.chips = 500
-        self.dealer = False # pending addition
+        self.dealer = dealer # pending addition
         self.busted = False
         self.has_natural = False
         self.has_stood = False
@@ -33,7 +33,7 @@ class Player:
     
     
     def __repr__(self) -> str:
-        return f'Name: {self.name}\nHand: {self.hand}\nChips: {self.chips}'
+        return f'\nName: {self.name}\nDealer: {self.dealer}\nHand: {self.hand}\nChips: {self.chips}'
 
 
 def create_players():     # for p in players: print(players[p].name)
@@ -42,13 +42,16 @@ def create_players():     # for p in players: print(players[p].name)
             player_num_input = int(input('How many players? '))
             if 7 < player_num_input or 0 >= player_num_input: 
                 raise ValueError
-            game.players = dict([(f'player_{i+1}', Player(input(f'Player Name: '))) for i in range(player_num_input)])
+            game.players.update([(f'player_{i+1}', Player(input(f'Player Name: '))) for i in range(player_num_input)])
             break
         except ValueError:
             print('Must be a number! Must be less than 8!', end=' ')
         except TypeError:
             print('Must be a number! Must be less than 8!', end=' ')
-    default_deck()
+
+
+def create_dealer():
+    game.players['player_0'] = Player('dealer', True)
 
 
 def default_deck():
@@ -102,20 +105,40 @@ def create_deck(num_of_decks: int):
     shuffle(game.deck)
 
 
-def deal_card(is_player: bool):
-    if is_player == True:
-        for p in range(len(game.players)):
-            game.players[f'player_{p+1}'].hand.append(game.deck.pop())
+def deal_card(id: int):
+    game.players[f'player_{id}'].hand.append(game.deck.pop())
+
+
+def check_naturals(hand) -> bool:
+    # Checks after the initial deal to see if any cards are natural
+    hand = strip_hand(hand)
+    if card_value(hand[0]) + card_value(hand[1]) == 21:
+        return True
     else:
-        game.dealers_hand.append(game.deck.pop())
+        return False
+    
+
+def resolve_naturals() -> None:
+    # Checks if the dealer has a natural.
+    if check_naturals(game.dealers_hand) is True:
+        game.has_natural.append('dealer')
+
+    # Checks which, if any players have a natural.
+    [game.has_natural.append(game.players[p].name) for p in game.players if check_naturals(game.players[p].hand) is True]
+    print(f'Naturals: {game.has_natural}')
 
 
-def check_naturals():
-    ...
-
-
-def resolve_naturals():
-    ...
+def check_natural_wins():
+    '''If the dealer has a natural, they immediately collect the bets of all players who do not have naturals, 
+    (but no additional amount). If the dealer and another player both have naturals, the bet of that player is
+    a stand-off (a tie), and the player takes back his chips.'''
+    
+    # Checks the list of naturals
+    if 'dealer' in game.has_natural:
+        # if the dealer is the only one with a natural, all players lost their bet.
+        ...
+    else:
+        ...
 
 
 def strip_hand(hand: list) -> list:
@@ -151,7 +174,6 @@ def calc_hand(stripped_hand: list):
         return sum_of_cards + num_of_aces
 
 
-
 def dealers_turn():
     ...
 
@@ -161,23 +183,40 @@ def players_turn(player_key):
 
 
 def print_hands():
-    ...
+    print(f'dealer\'s hand: {game.players['player_0'].hand[1:]}')
+    [print(f'{game.players[p]}\'s hand: {game.players[p].hand}') for p in game.players if game.players[p].dealer is False]
 
 
 def main():
-    
+    # defines the main logic for the game.
+    game.deck = []
 
     while (True):
+        # initializes the dealer as a instance of the player class.
+        create_dealer()
+        # initializes x number of players and dealer as an instance of the player class.
         create_players()
-        deal_card(is_player=False)
-        deal_card(is_player=True)
-        deal_card(is_player=False)
-        deal_card(is_player=True)
-        check_naturals()
-        print(f'dealer\'s hand: {game.dealers_hand}')
-        [print(f'{game.players[p]}\'s hand: {game.players[p].hand}') for p in game.players]
+        # asks the player(s) if they would like to use default values based on the # of players.
+        default_deck()
+
+        # deals the initial cards
+        [game.players[f'player_{p}'].hand.append(game.deck.pop()) for p in range(len(game.players))]
+
+        # temporary print, will add main print function later.
+        print_hands()
+
+        # resolve_naturals()
+
+        # if len(game.has_natural) > 0:
+        #     check_natural_wins()
         break
+    
+    input('Press enter to continue...')
+
+            
 
 
 if __name__ == '__main__':
     main()
+    system('cls')
+    system('C:/ProgramData/anaconda3/python.exe d:/Code/Github/Python/Blackjack/Learning_Programs/Blackjack/BlackJack_V2.py')
