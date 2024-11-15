@@ -105,8 +105,9 @@ def create_deck(num_of_decks: int):
     shuffle(game.deck)
 
 
-def deal_card(id: int):
-    game.players[f'player_{id}'].hand.append(game.deck.pop())
+def deal_card(player_key: str):
+    game.players[f'{player_key}'].hand.append(game.deck.pop())
+    print('Success')
 
 
 def check_naturals(hand) -> bool:
@@ -119,11 +120,7 @@ def check_naturals(hand) -> bool:
     
 
 def resolve_naturals() -> None:
-    # Checks if the dealer has a natural.
-    if check_naturals(game.dealers_hand) is True:
-        game.has_natural.append('dealer')
-
-    # Checks which, if any players have a natural.
+    # Checks which, if any hand have a natural.
     [game.has_natural.append(game.players[p].name) for p in game.players if check_naturals(game.players[p].hand) is True]
     print(f'Naturals: {game.has_natural}')
 
@@ -134,11 +131,9 @@ def check_natural_wins():
     a stand-off (a tie), and the player takes back his chips.'''
     
     # Checks the list of naturals
-    if 'dealer' in game.has_natural:
+    if 'dealer' in game.has_natural and len(game.has_natural) == 1:
         # if the dealer is the only one with a natural, all players lost their bet.
-        ...
-    else:
-        ...
+        [print(f'{item}\'s won!') for item in game.has_natural]
 
 
 def strip_hand(hand: list) -> list:
@@ -178,8 +173,26 @@ def dealers_turn():
     ...
 
 
-def players_turn(player_key):
-    ...
+def players_turn(player_key: str) -> None:
+    while (True):
+        print_current_hand(player_key)
+        match input('Hit or Stand? ').lower():
+            case 'hit':
+                deal_card(player_key)
+            case 'stand':
+                print('stand')
+            case _:
+                print('failure')
+
+
+def print_current_hand(player_key: str) -> None:
+    system('cls')
+    for item in game.players:
+        if game.players[item].dealer == True:
+            dealer = item
+    score = calc_hand(strip_hand(game.players[player_key].hand))
+    print(f'Dealer\'s Hand [First Card Hidden]: {game.players[dealer].hand[1:]}')
+    print(f'{game.players[player_key].name}\'s Hand [All Cards]: {game.players[player_key].hand} - Score: {score}')
 
 
 def print_hands():
@@ -201,15 +214,20 @@ def main():
 
         # deals the initial cards
         [game.players[f'player_{p}'].hand.append(game.deck.pop()) for p in range(len(game.players))]
+        [game.players[f'player_{p}'].hand.append(game.deck.pop()) for p in range(len(game.players))]
 
         # temporary print, will add main print function later.
         print_hands()
 
-        # resolve_naturals()
+        resolve_naturals()
 
-        # if len(game.has_natural) > 0:
-        #     check_natural_wins()
-        break
+        if len(game.has_natural) > 0:
+            check_natural_wins()
+            break
+        
+        for p in game.players:
+            if game.players[p].dealer == False:
+                players_turn(player_key = p)
     
     input('Press enter to continue...')
 
