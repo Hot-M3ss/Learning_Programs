@@ -3,16 +3,23 @@ from os import system
 
 
 class GameState:
-    # This class will be used to manage the gamestate.  Unsure of what to'
+    # This class will be used to manage the gamestate.
     def __init__(self) -> None:
         self.pot = 0
         self.deck = []
-        self.dealers_hand = []
         self.players = {}
         self.has_natural = []
-        self.current_turn = 1
+        self.has_stood = []
+    
+    @classmethod
+    def reset_game(self):
+        self.pot = 0
+        self.deck = []
+        self.players = {}
+        self.has_natural = []
+        self.has_stood = []
 
-
+        
 game = GameState()
 
 
@@ -22,21 +29,17 @@ class Player:
         self.name = name
         self.hand = []
         self.chips = 500
-        self.dealer = dealer # pending addition
+        self.dealer = dealer
         self.busted = False
-        self.has_natural = False
-        self.has_stood = False
-        
-    
+
     def __str__(self) -> str:
         return self.name
     
-    
     def __repr__(self) -> str:
-        return f'\nName: {self.name}\nDealer: {self.dealer}\nHand: {self.hand}\nChips: {self.chips}'
+        return f'\nName: {self.name}\nHand: {self.hand}\nChips: {self.chips}\nDealer: {self.dealer}\nBusted: {self.busted}\nHas Stood: {self.has_stood}'
 
 
-def create_players():     # for p in players: print(players[p].name)
+def create_players():
     while (True):
         try:
             player_num_input = int(input('How many players? '))
@@ -56,7 +59,7 @@ def create_dealer():
 
 def default_deck():
     while(True):
-        input_defaults: str = input('Would you like to use the default deck size(s)? ').lower()
+        input_defaults: str = input('\nWould you like to use the default deck size(s)? ').lower()
         match input_defaults:
             case 'yes':
                 input_deck(True)
@@ -105,9 +108,8 @@ def create_deck(num_of_decks: int):
     shuffle(game.deck)
 
 
-def deal_card(player_key: str):
+def deal_card(player_key: str) -> None:
     game.players[f'{player_key}'].hand.append(game.deck.pop())
-    print('Success')
 
 
 def check_naturals(hand) -> bool:
@@ -122,18 +124,20 @@ def check_naturals(hand) -> bool:
 def resolve_naturals() -> None:
     # Checks which, if any hand have a natural.
     [game.has_natural.append(game.players[p].name) for p in game.players if check_naturals(game.players[p].hand) is True]
-    print(f'Naturals: {game.has_natural}')
 
 
-def check_natural_wins():
+def check_natural_wins() -> None:
     '''If the dealer has a natural, they immediately collect the bets of all players who do not have naturals, 
     (but no additional amount). If the dealer and another player both have naturals, the bet of that player is
     a stand-off (a tie), and the player takes back his chips.'''
     
     # Checks the list of naturals
     if 'dealer' in game.has_natural and len(game.has_natural) == 1:
-        # if the dealer is the only one with a natural, all players lost their bet.
+        # if the dealer is the only one with a natural, all players lost their bet. I will need to code bet logic once the game is complete.
+        ...
+    else:
         [print(f'{item}\'s won!') for item in game.has_natural]
+        game.has_natural = []
 
 
 def strip_hand(hand: list) -> list:
@@ -153,7 +157,7 @@ def card_value(card: str) -> int:
         return int(card)
 
 
-def calc_hand(stripped_hand: list):
+def calc_hand(stripped_hand: list) -> int:
     sum_of_cards = 0
     num_of_aces = 0
         # Checks to see the value of a card and totals it (unless it is an ace)
@@ -169,20 +173,42 @@ def calc_hand(stripped_hand: list):
         return sum_of_cards + num_of_aces
 
 
-def dealers_turn():
+def check_hand(hand_value: int) -> None: # May not need this function.
     ...
 
 
-def players_turn(player_key: str) -> None:
-    while (True):
-        print_current_hand(player_key)
-        match input('Hit or Stand? ').lower():
-            case 'hit':
-                deal_card(player_key)
-            case 'stand':
-                print('stand')
-            case _:
-                print('failure')
+def dealers_turn() -> None:
+    for player in game.players:
+        if game.players[player].dealer is True:
+            while (True):
+                if calc_hand(strip_hand(game.players[player].hand)) < 17:
+                    system('cls')
+                    deal_card(player)
+                    print_hands()
+                    print(game.players[player].hand)
+                else:
+                    break
+
+
+def players_turn() -> None:
+    for player_key in game.players:
+        if game.players[player_key].dealer is False and game.players[player_key].name not in game.has_stood:
+            print_current_hand(player_key)
+            while(True):
+                match input('\nHit or Stand? ').lower():
+                    case 'hit':
+                        deal_card(player_key)
+                        print_current_hand(player_key)
+                        if len(game.players) > 2:
+                            input('\nPress Enter to continue...')
+                        break
+                    case 'stand':
+                        print('stand')
+                        game.has_stood.append(game.players[player_key])
+                        break
+                    case _:
+                        print_current_hand(player_key)
+                        print(f'\nPlease type "Hit or Stand"')
 
 
 def print_current_hand(player_key: str) -> None:
@@ -190,9 +216,10 @@ def print_current_hand(player_key: str) -> None:
     for item in game.players:
         if game.players[item].dealer == True:
             dealer = item
-    score = calc_hand(strip_hand(game.players[player_key].hand))
-    print(f'Dealer\'s Hand [First Card Hidden]: {game.players[dealer].hand[1:]}')
-    print(f'{game.players[player_key].name}\'s Hand [All Cards]: {game.players[player_key].hand} - Score: {score}')
+    p_score = calc_hand(strip_hand(game.players[player_key].hand))
+    d_score = calc_hand(strip_hand(game.players[dealer].hand[1:]))
+    print(f'Dealer\'s Hand [First Card Hidden]: {game.players[dealer].hand[1:]} - Score: {d_score}')
+    print(f'{game.players[player_key].name}\'s Hand [All Cards]: {game.players[player_key].hand} - Score: {p_score}')
 
 
 def print_hands():
@@ -201,10 +228,9 @@ def print_hands():
 
 
 def main():
-    # defines the main logic for the game.
-    game.deck = []
-
     while (True):
+        # resets the game in full.
+        game.reset_game()
         # initializes the dealer as a instance of the player class.
         create_dealer()
         # initializes x number of players and dealer as an instance of the player class.
@@ -215,9 +241,7 @@ def main():
         # deals the initial cards
         [game.players[f'player_{p}'].hand.append(game.deck.pop()) for p in range(len(game.players))]
         [game.players[f'player_{p}'].hand.append(game.deck.pop()) for p in range(len(game.players))]
-
-        # temporary print, will add main print function later.
-        print_hands()
+        system('cls')
 
         resolve_naturals()
 
@@ -225,16 +249,14 @@ def main():
             check_natural_wins()
             break
         
-        for p in game.players:
-            if game.players[p].dealer == False:
-                players_turn(player_key = p)
+        # goes through each players turn until they bust or stand.
+        while len(game.has_stood) < len(game.players) - 1:
+            players_turn()
+
+        dealers_turn()
     
     input('Press enter to continue...')
-
-            
 
 
 if __name__ == '__main__':
     main()
-    system('cls')
-    system('C:/ProgramData/anaconda3/python.exe d:/Code/Github/Python/Blackjack/Learning_Programs/Blackjack/BlackJack_V2.py')
