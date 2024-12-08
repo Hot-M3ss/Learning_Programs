@@ -169,8 +169,8 @@ def main() -> None:
 
         if len(game.has_natural) > 0:
             [print(f'{player_id} got paid out!') for player_id in game.has_natural]
-
-        input('egegegeougbeg')
+            break
+        
         # handles the turn order for the game.
         while len(game.has_stood) < len(game.players) - 1:
             players_turn()
@@ -178,6 +178,18 @@ def main() -> None:
         dealers_turn()
 
         # compare hands & declare a winner
+        check_winners()
+
+
+def check_winners():
+    winners = {}
+    # Check for and announce winners (pay bets)
+    final_hand_values = dict([(player_id, calculate_hand(strip_hand(game.players[player_id].hand))) for player_id in game.players])
+    # Returns the highest hand value.
+    highest_hand_value = max(final_hand_values.values())
+    # reconfigure this to prevent "pushes" from being paid out when a dealer/player tie.
+    [print(f'Winner! {game.players[player_id].name}') for player_id in final_hand_values if final_hand_values[player_id] == highest_hand_value]
+
 
 if __name__ == '__main__':
     main()
