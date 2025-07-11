@@ -86,7 +86,7 @@ def players_turn(players_hand, dealers_hand) -> None:
         
         match player_input:
             case 'hit':
-                os.system('cls')
+                os.system('clear')
                 players_hand.append(deal_card(deck))
                 print_hands(players_hand, dealers_hand)
                 check_outcome(players_hand, dealers_hand, False)
@@ -99,7 +99,7 @@ def players_turn(players_hand, dealers_hand) -> None:
 def dealers_turn(players_hand, dealers_hand):
     if calculate_hand(dealers_hand) < 17:
         while calculate_hand(dealers_hand) < 17:
-            os.system('cls')
+            os.system('clear')
             dealers_hand.append(deal_card(deck))
             print_hands(players_hand, dealers_hand)
             check_outcome(players_hand, dealers_hand, True)
@@ -150,7 +150,7 @@ deck = create_deck()
 
 def play():
     while (True):
-        os.system('cls')
+        os.system('clear')
         global deck
         players_hand = []
         dealers_hand = []
