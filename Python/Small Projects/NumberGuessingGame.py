@@ -1,49 +1,60 @@
-import random;
+from random import randint;
+from random import choice;
 import os;
 
 def intro():
-    computersNumber = generateNumber()
-    playerGuess = checkPlayerGuess()
     clearTerminal()
-    checkGuess(playerGuess, computersNumber)
+    print("Welcome to the Number Guessing Game!\n")
+    compareGuess(generateNumber(), PlayerGuess())
+
+def clearTerminal():
+    if os.name == "posix":
+        os.system("clear")
+    elif os.name == "nt":
+        os.system("cls")
+
+def generateNumber():
+    while (True):
+        match input("Set the range? (y/n): ").lower():
+            case "y":
+                rangeStart, rangeEnd = setRange()
+                break
+            case "n":
+                rangeStart = 1
+                rangeEnd = choice(range(10,100,5))
+                break
+            case _:
+                print("Please enter y or n!")
+    clearTerminal()
+    print(f"The range set is between {rangeStart}-{rangeEnd}\n")
+    return randint(rangeStart, rangeEnd)
 
 def setRange():
+    clearTerminal()
     while(True):
         try:
-            rangeStart = int(input("Please input the start of the range: "))
-            rangeEnd = int(input("Please input the end of the range"))
+            print("Please enter your range below. Don't make it too easy!\n")
+            rangeStart = int(input("Start: "))
+            rangeEnd = int(input("End: "))
             if rangeStart > rangeEnd:
                 raise ArithmeticError
-            break
+            return rangeStart, rangeEnd
         except ValueError:
             print("Not a valid number!")
         except ArithmeticError:
             print("Range start must be less than range end!")
 
-def checkPlayerGuess():
+def PlayerGuess():
     while(True):
         try:
-            playerGuess = int(input("Please guess a number from 1-100: "))
-            break
+            return int(input(f"Please enter your guess: "))
         except ValueError:
-            print("Not a valid number!")
-
-    return playerGuess
-
-def clearTerminal():
-    if os.name == "nt":
-        os.system("clear")
-    elif os.name == "posix":
-        os.system("cls")
-
-def checkGuess(playerGuess, computersNumber):
-    if playerGuess == computersNumber:
-        print("You Won!\n")
+            print("Not a valid number!\n")
+    
+def compareGuess(computersNumber, playerGuess):
+    if computersNumber == playerGuess:
+        print("You Won!")
     else:
-        print("You did not guess correctly!\n")
-        
-def generateNumber():
-    number = random.randint(1, 100)
-    return number
+        print("Better luck next time!")
 
 intro()
