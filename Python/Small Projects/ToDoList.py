@@ -1,29 +1,6 @@
 import os
 import json
 
-# def createFile(filePath):
-#     print("Welcome to your todo list!")
-#     # desktop = os.path.join(os.path.expanduser("~"), "Desktop")
-    
-    
-#     with open(filePath, 'a') as f:
-#         f.write('test')
-
-
-
-# def loadExistingTodoList():
-#     print("logic not implemented")
-
-
-
-# def removeTodoItem(entryNumber):
-#     ...
-
-# def viewTodoItems():
-#     ...
-
-
-
 def main():
     print("Welcome to your todo list!")
     desktop = os.path.join(os.path.expanduser("~"), "Documents")
@@ -42,12 +19,11 @@ def loadExistingTodoList(filePath):
         return todoList
     
 def addTodoItem(filePath, todoList):
-
     while (True):
         match input("Would you like to add a(nother) task? (y/n): ").lower():
             case 'y':
                 todoname = input("Task Name: ")
-                todoDate  = input("Task Due Date: ")
+                todoDate  = input("Task Due Date (yyyy-mm-dd): ")
                 todoNote = input("Task Note: ")
 
                 todoItem = {"task": todoname, "due date": todoDate, "note": todoNote, "completed": False}
@@ -55,15 +31,10 @@ def addTodoItem(filePath, todoList):
                 todoList.append(todoItem)
 
                 print(todoList)
-            case 'n':
+            case _:
                 break
     
     writeToFile(filePath, todoList)
-
-    # with open(filePath,'r') as file:
-    #     loaded_list = json.load(file)
-
-    # print(loaded_list)
 
 def writeToFile(filePath, itemToWrite):
 
