@@ -122,9 +122,6 @@ def deleteTask(loadedList):
             case 's':
                 return newList
 
-        
-    return loadedList
-
 def copyList(loadedList):
     newList = []
     for x in loadedList:
