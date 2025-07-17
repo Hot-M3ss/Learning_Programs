@@ -84,11 +84,11 @@ def updateTask(loadedList):
 
         match input("\nOption: ").lower():
             case '1':
-                newList[taskNumber].update({'task':f'{input("\nNew Task Name: ")}'})
+                newList[taskNumber].update({'task':input("\nNew Task Name: ")})
             case '2':
-                newList[taskNumber].update({'date':f'{input("\nNew due date (yyyy-mm-dd): ")}'})
+                newList[taskNumber].update({'date':input("\nNew due date (yyyy-mm-dd): ")})
             case '3':
-                newList[taskNumber].update({'note':f'{input("\nNew Task Note: ")}'})
+                newList[taskNumber].update({'note':input("\nNew Task Note: ")})
             case '4':
                 oppositeValue = (False if newList[taskNumber]['done'] == True else True)
                 newList[taskNumber].update({'done':oppositeValue})
