@@ -60,3 +60,43 @@
 # for id, item in enumerate(loadedList, start=1):
 #     status = f'Due by {item["date"]:<10}' if item["done"] == False else "Completed"
 #     print(f'{id:>3}. Task: {item["task"]:<{maxTaskLength}} | Status: {status:<17} | Note: {item["note"]:<10}')
+
+"""
+Welcome to the TEXT ADVENTURE!!! This may be an ambitious goal, 
+but I would like to implement a basic story with an inventory and
+possible combat.
+"""
+class Enemy:
+    """f"""
+    def __init__(self, name: str, health: int, enemy_type: str):
+        self.name = name
+        self.health = health
+        self.enemy_type = enemy_type
+
+    def __repr__(self):
+        return f"success: {self.name}"
+
+    def reduce_health(self, damage_amount: int, weak: bool):
+        """applies damage to enemies dependant on if the enemy is weak to damage."""
+        if weak:
+            crit = damage_amount * 2
+            self.health = self.health - crit
+        else:
+            self.health = self.health - damage_amount
+
+def main() -> None:
+    """This controls the main logic of the Text Adventure"""
+    enemy_one = Enemy("final boss", 5000, "fire")
+    damage = int(input("how much damage do you want to do? "))
+
+    enemy_one.reduce_health(damage, True)
+
+    print(enemy_one.health)
+
+
+# def battle_loop(enemy_name: str) -> None:
+#     """This controls the main battle loops, the idea of this module
+#     is to initialize a battle sequence, right now there will only
+#     be one enemy for learning purposes."""
+
+main()
