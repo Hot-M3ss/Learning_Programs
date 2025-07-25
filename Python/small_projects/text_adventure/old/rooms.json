@@ -1,0 +1,41 @@
+{
+    "player_state": {
+        "in_room": null,
+        "inventory": [],
+        "flags": {
+            "seen_intro": false
+        }
+    },
+    "items": [
+        {
+            "name": "Torch",
+            "Unlit": true
+        }
+    ],
+    "rooms": [
+        {
+            "id": 1,
+            "room_intro": "",
+            "room_revisit": "",
+            "objects": [],
+            "connections": {
+                "north": null,
+                "south": null,
+                "east": null,
+                "west": null
+            }
+        },
+        {
+            "id": 2,
+            "room_intro": "",
+            "room_revisit": "",
+            "objects": [],
+            "connections": {
+                "north": null,
+                "south": null,
+                "east": null,
+                "west": null
+            }
+        }
+    ]
+}

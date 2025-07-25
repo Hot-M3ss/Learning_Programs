@@ -10,15 +10,6 @@ def main() -> None:
     option_select(file_path, loaded_list)
 
 
-def load_existing_list(file_path) -> list:
-    try:
-        with open(file_path, 'r', encoding="UTF-8") as file:
-            loaded_list = json.load(file)
-        return loaded_list
-    except FileNotFoundError:
-        return []
-
-
 def view_list(loaded_list) -> None:
     print("Welcome to your todo list!\n")
     if loaded_list:
@@ -155,6 +146,15 @@ def copy_list(loaded_list) -> list:
         new_list.append(new_dict)
     return new_list
     # return [dict(item) for item in loaded_list] <- While this is more efficient, I like my old system.
+
+
+def load_existing_list(file_path) -> list:
+    try:
+        with open(file_path, 'r', encoding="UTF-8") as file:
+            loaded_list = json.load(file)
+        return loaded_list
+    except FileNotFoundError:
+        return []
 
 
 def write_to_file(file_path, loaded_list: list) -> None:
